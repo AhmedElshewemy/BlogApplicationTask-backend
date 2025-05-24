@@ -1,73 +1,105 @@
 # BlogApplicationTask-backend
-task for interview BlogApplicationTask-backend create a RESTful API
 
-# Blog API
-
-This is a simple blog application built with Ruby on Rails that provides a RESTful API for managing blog posts.
+A RESTful API for a simple blog application built with Ruby on Rails. This project is designed for interview and learning purposes.
 
 ## Features
 
-- Create, read, update, and delete blog posts.
-- JSON responses for API requests.
-- Basic validations for post attributes.
+- User authentication with JWT (sign up, login)
+- Create, read, update, and delete blog posts
+- Tagging system for posts
+- Commenting on posts
+- Only post owners can edit/delete their posts
+- Only comment owners can edit/delete their comments
+- Sidekiq for background jobs
+- PostgreSQL for database
+- Redis for background jobs and caching
+- Docker and Docker Compose support
 
 ## Getting Started
 
 ### Prerequisites
 
-- Ruby (version 2.7 or higher)
-- Rails (version 6.0 or higher)
-- PostgreSQL (or your preferred database)
+- Docker & Docker Compose (recommended)
+- Or: Ruby (3.0+), Rails (7.1+), PostgreSQL, Redis
 
-### Installation
+### Setup with Docker (Recommended)
 
 1. Clone the repository:
-
-   ```
+   ```bash
    git clone <repository-url>
-   ```
-
-2. Navigate to the project directory:
-
-   ```
    cd blog-api
    ```
-
-3. Install the required gems:
-
+2. Copy and edit environment variables as needed:
+   ```bash
+   cp api/.env.example api/.env
+   # Edit api/.env to set JWT_SECRET and other secrets
    ```
+3. Build and start the services:
+   ```bash
+   docker-compose up --build
+   ```
+4. In a new terminal, run database migrations:
+   ```bash
+   docker-compose exec web rails db:create db:migrate
+   ```
+5. (Optional) Seed the database:
+   ```bash
+   docker-compose exec web rails db:seed
+   ```
+
+### Local Setup (Without Docker)
+
+1. Install dependencies:
+   ```bash
    bundle install
    ```
-
-4. Set up the database:
-
+2. Set up the database:
+   ```bash
+   rails db:create db:migrate
+   rails db:seed # optional
    ```
-   rails db:create
-   rails db:migrate
+3. Start Redis and Sidekiq (for background jobs):
+   ```bash
+   redis-server &
+   bundle exec sidekiq
+   ```
+4. Start the Rails server:
+   ```bash
+   rails server
    ```
 
-### Usage
+## API Usage
 
-To start the server, run:
+Base URL: `http://localhost:3000/`
 
-```
-rails server
-```
+### Authentication
+- `POST /signup` — Register a new user
+- `POST /login` — Obtain a JWT token
 
-You can access the API at `http://localhost:3000/api/v1/posts`.
+### Posts
+- `GET /posts` — List all posts
+- `GET /posts/:id` — Show a specific post
+- `POST /posts` — Create a new post (auth required)
+- `PUT/PATCH /posts/:id` — Update a post (owner only)
+- `DELETE /posts/:id` — Delete a post (owner only)
 
-### API Endpoints
+### Comments
+- `GET /posts/:post_id/comments` — List comments for a post
+- `POST /posts/:post_id/comments` — Add a comment (auth required)
+- `PUT/PATCH /posts/:post_id/comments/:id` — Update a comment (owner only)
+- `DELETE /posts/:post_id/comments/:id` — Delete a comment (owner only)
 
-- `GET /api/v1/posts` - List all posts
-- `GET /api/v1/posts/:id` - Show a specific post
-- `POST /api/v1/posts` - Create a new post
-- `PATCH/PUT /api/v1/posts/:id` - Update a specific post
-- `DELETE /api/v1/posts/:id` - Delete a specific post
+### Tags
+- Tags are managed automatically when creating/updating posts.
 
-### Contributing
+### Health & Background Jobs
+- `GET /healthz` — Health check endpoint
+- Sidekiq dashboard: `/sidekiq` (protect in production!)
 
-Feel free to submit issues or pull requests for any improvements or features.
+## Contributing
 
-### License
+Feel free to submit issues or pull requests for improvements or new features.
+
+## License
 
 This project is open source and available under the MIT License.
