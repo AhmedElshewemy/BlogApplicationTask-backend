@@ -19,8 +19,17 @@ services:
   
   web:
     build: .
-    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -b '0.0.0.0'"
-
+    command: >
+      bash -lc "
+        until pg_isready -h db -p 5432; do
+          echo 'Waiting for Postgres…'
+          sleep 1
+        done
+        rails db:create db:migrate
+        rm -f tmp/pids/server.pid
+        bundle exec rails s -b '0.0.0.0'
+      "
+    working_dir: /myapp
     volumes:
       - ./api:/myapp
     ports:
@@ -31,20 +40,21 @@ services:
     environment:
       DATABASE_HOST: db
       REDIS_URL: redis://redis:6379/0
-      JWT_SECRET: ahmed12e
+      JWT_SECRET: your_super_secret_jwt_key
 
   sidekiq:
     build: .
     command: bundle exec sidekiq
     volumes:
       - ./api:/myapp
+    working_dir: /myapp
     depends_on:
       - db
       - redis
     environment:
       DATABASE_HOST: db
       REDIS_URL: redis://redis:6379/0
-      JWT_SECRET: ahmed12e
+      JWT_SECRET: your_super_secret_jwt_key
 
 volumes:
   pgdata:
