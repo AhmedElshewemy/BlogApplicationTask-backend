@@ -31,8 +31,6 @@ A RESTful API for a simple blog application built with Ruby on Rails. This proje
    ```
 2. Copy and edit environment variables as needed:
    ```bash
-   cp api/.env.example api/.env
-   # Edit api/.env to set JWT_SECRET and other secrets
    ```
 3. Build and start the services:
    ```bash
