@@ -29,18 +29,14 @@ A RESTful API for a simple blog application built with Ruby on Rails. This proje
    git clone <repository-url>
    cd blog-api
    ```
-2. Copy and edit environment variables as needed:
-   ```bash
-   ```
-3. Build and start the services:
+2. (Optional) Edit environment variables in `docker-compose.yml` as needed (e.g., set `JWT_SECRET`).
+3. Build and start the services (database will be created and migrated automatically):
    ```bash
    docker-compose up --build
    ```
-4. In a new terminal, run database migrations:
-   ```bash
-   docker-compose exec web rails db:create db:migrate
-   ```
-5. (Optional) Seed the database:
+   The Rails server will be available at http://localhost:3000
+
+4. (Optional) Seed the database:
    ```bash
    docker-compose exec web rails db:seed
    ```
