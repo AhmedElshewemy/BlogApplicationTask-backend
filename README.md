@@ -14,6 +14,7 @@ A RESTful API for a simple blog application built with Ruby on Rails. This proje
 - PostgreSQL for database
 - Redis for background jobs and caching
 - Docker and Docker Compose support
+- **Automated integration tests with Rails test framework**
 
 ## Getting Started
 
@@ -61,6 +62,22 @@ A RESTful API for a simple blog application built with Ruby on Rails. This proje
    ```bash
    rails server
    ```
+
+### Running Tests
+
+To run the test suite inside Docker:
+
+```bash
+docker-compose exec web rails test
+```
+
+Or locally (without Docker):
+
+```bash
+rails test
+```
+
+Test files are located in the `api/test` directory.
 
 ## API Usage
 
