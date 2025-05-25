@@ -41,7 +41,9 @@ class PostsController < ApplicationController
 
     # Handle tags: find_or_create each by name, then assign
     tag_names = post_params[:tags] || []
-    @post.tags = tag_names.map { |tname| Tag.find_or_create_by(name: tname.downcase.strip) }
+    #@post.tags = tag_names.map { |tname| Tag.find_or_create_by(name: tname.downcase.strip) }
+    @post.tags = tag_names.map { |tname| Tag.first_or_create(name: tname.downcase.strip) }
+
 
     if @post.save
       # Schedule the DeletePostJob to run exactly 24 hours later
