@@ -39,11 +39,17 @@ class PostsController < ApplicationController
     # Assign current_user as the author
     @post = @current_user.posts.build(post_params.except(:tags))
 
-    # Handle tags: find_or_create each by name, then assign
-    tag_names = post_params[:tags] || []
-    #@post.tags = tag_names.map { |tname| Tag.find_or_create_by(name: tname.downcase.strip) }
-    @post.tags = tag_names.map { |tname| Tag.first_or_create(name: tname.downcase.strip) }
+    # # Handle tags: find_or_create each by name, then assign
+    # tag_names = post_params[:tags] || []
+    # #@post.tags = tag_names.map { |tname| Tag.find_or_create_by(name: tname.downcase.strip) }
+    # @post.tags = tag_names.map { |tname| Tag.first_or_create(name: tname.downcase.strip) }
 
+    tag_names = post_params[:tags] || []
+    @post.tags = tag_names.map do |tname|
+    normalized = tname.downcase.strip
+    Tag.find_or_create_by(name: normalized)
+    # or: Tag.where(name: normalized).first_or_create(name: normalized)
+  end
 
     if @post.save
       # Schedule the DeletePostJob to run exactly 24 hours later
@@ -67,11 +73,18 @@ class PostsController < ApplicationController
     # Update title/body if provided
     if @post.update(post_params.except(:tags))
       # If tags array passed, update them:
+      # if post_params[:tags]
+      #   new_tag_names = post_params[:tags].map { |t| t.downcase.strip }
+      #   # Replace current associations with new Tag records
+      #   #@post.tags = new_tag_names.map { |tname| Tag.find_or_create_by(name: tname) }
+      #   @post.tags = new_tag_names.map { |tname| Tag.first_or_create(name: tname) }
       if post_params[:tags]
-        new_tag_names = post_params[:tags].map { |t| t.downcase.strip }
-        # Replace current associations with new Tag records
-        @post.tags = new_tag_names.map { |tname| Tag.find_or_create_by(name: tname) }
+      new_tag_names = post_params[:tags].map { |t| t.downcase.strip }
+      @post.tags = new_tag_names.map do |tname|
+      Tag.find_or_create_by(name: tname)
+      # or: Tag.where(name: tname).first_or_create(name: tname)
       end
+    end
 
       render json: @post.as_json(
         only: [:id, :title, :body, :created_at, :updated_at],

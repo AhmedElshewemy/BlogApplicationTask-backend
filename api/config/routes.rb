@@ -5,6 +5,8 @@ Rails.application.routes.draw do
 
   mount Sidekiq::Web => '/sidekiq'
   get "/healthz", to: "health#check"
+  get '/health', to: 'health#check'
+
   get "up" => "rails/health#show", as: :rails_health_check
 
   # Public endpoints
