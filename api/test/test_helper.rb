@@ -16,7 +16,7 @@ module ActiveSupport
     self.use_transactional_tests = true
   # Parse JSON response body into a Hash
     def json_response
-    JSON.parse(response.body)
+      JSON.parse(response.body)
     end
 
     # Get a valid JWT token by signing up (or logging in) in tests

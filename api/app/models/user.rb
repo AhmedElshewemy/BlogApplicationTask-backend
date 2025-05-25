@@ -9,5 +9,7 @@ class User < ApplicationRecord
     # Validations
     validates :name,  presence: true
     validates :email, presence: true, uniqueness: true
+    validates :password_confirmation, presence: true, if: -> { password.present? }
+
     # `image` can be blank or a URL—no strict validation here
 end

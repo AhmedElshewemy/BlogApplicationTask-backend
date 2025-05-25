@@ -26,5 +26,5 @@ class UsersController < ApplicationController
   # Sanitize what you send back (no password_digest!)
   def user_json(user)
     user.as_json(only: [:id, :name, :email, :image])
-  end 
+  end
 end
