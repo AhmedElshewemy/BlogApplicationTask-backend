@@ -40,7 +40,7 @@ services:
     environment:
       DATABASE_HOST: db
       REDIS_URL: redis://redis:6379/0
-      JWT_SECRET: your_super_secret_jwt_key
+      JWT_SECRET: ahmed11
 
   sidekiq:
     build: .
@@ -54,7 +54,7 @@ services:
     environment:
       DATABASE_HOST: db
       REDIS_URL: redis://redis:6379/0
-      JWT_SECRET: your_super_secret_jwt_key
+      JWT_SECRET: ahmed11
 
 volumes:
   pgdata:
