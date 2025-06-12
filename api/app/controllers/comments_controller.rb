@@ -59,7 +59,7 @@ class CommentsController < ApplicationController
     render json: { error: "Comment not found for this post" }, status: :not_found
   end
 
-  # Only the comment’s author can edit or delete it
+  # Only the comment author can edit or delete
   def authorize_comment_owner!
     render json: { error: "Forbidden: not comment owner" }, status: :forbidden unless @comment.user_id == @current_user.id
   end

@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  # Skip auth check on signup
+  # Skip authentication for signup
   skip_before_action :authorize_request, only: :create
 
   # POST /signup
@@ -18,12 +18,12 @@ class UsersController < ApplicationController
 
   private
 
-  # Strong params: :name, :email, :password, :password_confirmation, :image
+  # Only allow permitted user attributes
   def user_params
     params.permit(:name, :email, :password, :password_confirmation, :image)
   end
 
-  # Sanitize what you send back (no password_digest!)
+  # Return user data without sensitive fields
   def user_json(user)
     user.as_json(only: [:id, :name, :email, :image])
   end

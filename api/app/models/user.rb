@@ -1,15 +1,15 @@
 class User < ApplicationRecord
-    # bcrypt will look for `password_digest`
-    has_secure_password
+  # Adds methods to set and authenticate against a BCrypt password using `password_digest`
+  has_secure_password
 
-    # AE
-    has_many :posts,    dependent: :destroy
-    has_many :comments, dependent: :destroy
+  # Associations
+  has_many :posts, dependent: :destroy
+  has_many :comments, dependent: :destroy
 
-    # Validations
-    validates :name,  presence: true
-    validates :email, presence: true, uniqueness: true
-    validates :password_confirmation, presence: true, if: -> { password.present? }
+  # Validations
+  validates :name,  presence: true
+  validates :email, presence: true, uniqueness: true
+  validates :password_confirmation, presence: true, if: -> { password.present? }
 
-    # `image` can be blank or a URL—no strict validation here
+  # The `image` attribute is optional and can be blank or a URL
 end

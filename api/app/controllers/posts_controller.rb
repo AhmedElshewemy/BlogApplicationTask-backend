@@ -1,13 +1,10 @@
 class PostsController < ApplicationController
-
   before_action :set_post,   only: [:show, :update, :destroy]
   before_action :authorize_owner!, only: [:update, :destroy]
 
   # GET /posts
   def index
-    # Returns all posts (you could paginate or filter in real apps)
     @posts = Post.includes(:tags, :user).all
-
     render json: @posts.as_json(
       only: [:id, :title, :body, :created_at, :updated_at],
       include: {
@@ -36,24 +33,16 @@ class PostsController < ApplicationController
 
   # POST /posts
   def create
-    # Assign current_user as the author
     @post = @current_user.posts.build(post_params.except(:tags))
-
-    # # Handle tags: find_or_create each by name, then assign
-    # tag_names = post_params[:tags] || []
-    # #@post.tags = tag_names.map { |tname| Tag.find_or_create_by(name: tname.downcase.strip) }
-    # @post.tags = tag_names.map { |tname| Tag.first_or_create(name: tname.downcase.strip) }
-
     tag_names = post_params[:tags] || []
     @post.tags = tag_names.map do |tname|
-    normalized = tname.downcase.strip
-    Tag.find_or_create_by(name: normalized)
-    # or: Tag.where(name: normalized).first_or_create(name: normalized)
-  end
+      normalized = tname.downcase.strip
+      Tag.find_or_create_by(name: normalized)
+    end
 
     if @post.save
-      # Schedule the DeletePostJob to run exactly 24 hours later
-      DeletePostJob.set(wait: 24.hours).perform_later(@post.id)  
+      # Schedule deletion 24 hours after creation
+      DeletePostJob.set(wait: 24.hours).perform_later(@post.id)
       render json: @post.as_json(
         only: [:id, :title, :body, :created_at, :updated_at],
         include: {
@@ -68,24 +57,11 @@ class PostsController < ApplicationController
 
   # PUT /posts/:id
   def update
-    # `authorize_owner!` ensures only the author can reach here
-
-    # Update title/body if provided
     if @post.update(post_params.except(:tags))
-      # If tags array passed, update them:
-      # if post_params[:tags]
-      #   new_tag_names = post_params[:tags].map { |t| t.downcase.strip }
-      #   # Replace current associations with new Tag records
-      #   #@post.tags = new_tag_names.map { |tname| Tag.find_or_create_by(name: tname) }
-      #   @post.tags = new_tag_names.map { |tname| Tag.first_or_create(name: tname) }
       if post_params[:tags]
-      new_tag_names = post_params[:tags].map { |t| t.downcase.strip }
-      @post.tags = new_tag_names.map do |tname|
-      Tag.find_or_create_by(name: tname)
-      # or: Tag.where(name: tname).first_or_create(name: tname)
+        new_tag_names = post_params[:tags].map { |t| t.downcase.strip }
+        @post.tags = new_tag_names.map { |tname| Tag.find_or_create_by(name: tname) }
       end
-    end
-
       render json: @post.as_json(
         only: [:id, :title, :body, :created_at, :updated_at],
         include: {
@@ -100,7 +76,6 @@ class PostsController < ApplicationController
 
   # DELETE /posts/:id
   def destroy
-    # `authorize_owner!` ensures only author hits this
     @post.destroy
     head :no_content
   end
@@ -113,13 +88,12 @@ class PostsController < ApplicationController
     render json: { error: "Post not found" }, status: :not_found
   end
 
-  # Only the author (post.user) can update or delete
+  # Only the post author can update or delete
   def authorize_owner!
     render json: { error: "Forbidden: not post owner" }, status: :forbidden unless @post.user_id == @current_user.id
   end
 
-  # Strong params: require title, body, tags (array of strings).  
-  # If tags not sent, `:tags` will be nil.
+  # Strong params: require title, body, and tags (array of strings)
   def post_params
     params.require(:post).permit(:title, :body, tags: [])
   end

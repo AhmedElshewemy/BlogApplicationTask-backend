@@ -3,15 +3,15 @@ class ApplicationController < ActionController::API
 
   private
 
-   # Fetches the 'Bearer <token>' header, decodes it, and finds the current user
+  # Authenticates the request using the Bearer token and sets @current_user
   def authorize_request
-  header = request.headers['Authorization']
-  header = header.split(' ').last if header.present?
-  decoded = JsonWebToken.decode(header)
-  @current_user = User.find_by(id: decoded[:user_id]) if decoded
+    header = request.headers['Authorization']
+    header = header.split(' ').last if header.present?
+    decoded = JsonWebToken.decode(header)
+    @current_user = User.find_by(id: decoded[:user_id]) if decoded
 
-  return if @current_user
+    return if @current_user
 
-  render json: { error: 'Not Authorized' }, status: :unauthorized
+    render json: { error: 'Not Authorized' }, status: :unauthorized
   end
 end
